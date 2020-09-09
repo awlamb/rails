@@ -650,6 +650,10 @@ module ActiveRecord
             raise ActiveRecord::ReadOnlyError, "Write query attempted while in readonly mode: #{sql}"
           end
 
+          puts ">> sql #{sql}"
+          puts ">> bindn #{binds}"
+          puts ">> prepare #{prepare}"
+
           if without_prepared_statement?(binds)
             result = exec_no_cache(sql, name, [])
           elsif !prepare
@@ -670,6 +674,9 @@ module ActiveRecord
           update_typemap_for_default_timezone
 
           type_casted_binds = type_casted_binds(binds)
+          if type_casted_binds.empty?
+            type_casted_binds = nil
+          end
           log(sql, name, binds, type_casted_binds) do
             ActiveSupport::Dependencies.interlock.permit_concurrent_loads do
               @connection.exec_params(sql, type_casted_binds)
